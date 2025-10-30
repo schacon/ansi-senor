@@ -207,7 +207,9 @@ fn generate_output_path(command: &[String], output_text: &str, custom_output: Op
 
     let filename = format!("{}-{}.html", command_name, &hash[..8]);
 
-    Ok(PathBuf::from("/tmp/ansi-senor").join(filename))
+    // Use system temp directory with ansi-senor subdirectory
+    let temp_dir = std::env::temp_dir().join("ansi-senor");
+    Ok(temp_dir.join(filename))
 }
 
 fn format_duration(duration: Duration) -> String {
