@@ -202,12 +202,8 @@ fn generate_output_path(command: &[String], output_text: &str, custom_output: Op
     let digest = md5::compute(output_text.as_bytes());
     let hash = format!("{:x}", digest);
 
-    // Get the command name for the filename
-    let command_name = command[0]
-        .split('/')
-        .last()
-        .unwrap_or(&command[0])
-        .replace(' ', "-");
+    // Get the full command for the filename (replace spaces with dashes)
+    let command_name = command.join(" ").replace(' ', "-");
 
     let filename = format!("{}-{}.html", command_name, &hash[..8]);
 
