@@ -14,9 +14,47 @@ struct Args {
     #[arg(short, long)]
     output: Option<PathBuf>,
 
+    /// Color theme for HTML output (light or dark)
+    #[arg(short, long, default_value = "dark")]
+    theme: Theme,
+
     /// Command to run
     #[arg(required = true, trailing_var_arg = true)]
     command: Vec<String>,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Theme {
+    Light,
+    Dark,
+}
+
+impl Theme {
+    fn background_color(&self) -> &str {
+        match self {
+            Theme::Light => "#ffffff",
+            Theme::Dark => "#1e1e1e",
+        }
+    }
+
+    fn text_color(&self) -> &str {
+        match self {
+            Theme::Light => "#24292e",
+            Theme::Dark => "#d4d4d4",
+        }
+    }
+}
+
+impl std::str::FromStr for Theme {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "light" => Ok(Theme::Light),
+            "dark" => Ok(Theme::Dark),
+            _ => Err(format!("Invalid theme '{}'. Valid options: light, dark", s)),
+        }
+    }
 }
 
 fn main() -> Result<()> {
@@ -55,8 +93,8 @@ fn main() -> Result<()> {
     }
 
     // Convert ANSI to HTML and save
-    let html_content = ansi_to_html::convert(&output_text)
-        .context("Failed to convert ANSI to HTML")?;
+    let html_content =
+        ansi_to_html::convert(&output_text).context("Failed to convert ANSI to HTML")?;
 
     let full_html = format!(
         r#"<!DOCTYPE html>
@@ -66,8 +104,8 @@ fn main() -> Result<()> {
     <title>{}</title>
     <style>
         body {{
-            background-color: #1e1e1e;
-            color: #d4d4d4;
+            background-color: {};
+            color: {};
             font-family: 'Consolas', 'Courier New', monospace;
             padding: 20px;
             margin: 0;
@@ -83,11 +121,15 @@ fn main() -> Result<()> {
 </body>
 </html>"#,
         args.command.join(" "),
+        args.theme.background_color(),
+        args.theme.text_color(),
         html_content
     );
 
-    fs::write(&output_path, full_html)
-        .context(format!("Failed to write output file: {}", output_path.display()))?;
+    fs::write(&output_path, full_html).context(format!(
+        "Failed to write output file: {}",
+        output_path.display()
+    ))?;
 
     println!("Output saved to {}", output_path.display());
 
