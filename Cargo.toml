@@ -1,6 +1,6 @@
 [package]
 name = "ansi-senor"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Run commands with ANSI color output captured to HTML"
 license = "MIT OR Apache-2.0"
@@ -15,3 +15,4 @@ anyhow = "1.0"
 md5 = "0.7"
 humantime = "2.1"
 ansi-to-html = "0.2"
+tempfile = "3.8"
