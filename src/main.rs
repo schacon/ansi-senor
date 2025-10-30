@@ -83,8 +83,8 @@ fn main() -> Result<()> {
     }
     println!("---\n");
 
-    // Generate output filename
-    let output_path = generate_output_path(&args.command, args.output)?;
+    // Generate output filename (hash based on output content)
+    let output_path = generate_output_path(&args.command, &output_text, args.output)?;
 
     // Ensure output directory exists
     if let Some(parent) = output_path.parent() {
@@ -193,14 +193,13 @@ fn run_command_with_capture(command: &[String]) -> Result<(String, i32)> {
     Ok((output_text, exit_code))
 }
 
-fn generate_output_path(command: &[String], custom_output: Option<PathBuf>) -> Result<PathBuf> {
+fn generate_output_path(command: &[String], output_text: &str, custom_output: Option<PathBuf>) -> Result<PathBuf> {
     if let Some(path) = custom_output {
         return Ok(path);
     }
 
-    // Generate hash from command
-    let command_str = command.join(" ");
-    let digest = md5::compute(command_str.as_bytes());
+    // Generate hash from output content
+    let digest = md5::compute(output_text.as_bytes());
     let hash = format!("{:x}", digest);
 
     // Get the command name for the filename
